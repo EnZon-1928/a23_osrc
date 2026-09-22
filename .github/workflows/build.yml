@@ -20,7 +20,7 @@ jobs:
     - name: Checkout Source Code
       uses: actions/checkout@v4
       with:
-        ref: 'su'
+        ref: 'experiment'
         fetch-depth: 0
         submodules: 'recursive'
 
