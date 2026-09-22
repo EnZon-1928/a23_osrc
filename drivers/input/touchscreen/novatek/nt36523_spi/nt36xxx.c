@@ -2159,8 +2159,11 @@ void nvt_ts_ic_status(uint8_t *point_data, bool force_print)
 		input_err(true, &ts->client->dev, "%s: FW status (2D raw check reK)\n", __func__);
 		break;
 	default:
+		/*
 		input_err(true, &ts->client->dev, "%s: FW status (invalid reK status : %02x%02x)\n",
 					__func__, point_data[FW_STATUS_OFFSET], point_data[FW_STATUS_OFFSET + 1]);
+		*/
+		break;
 	}
 }
 #endif
