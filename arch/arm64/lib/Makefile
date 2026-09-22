@@ -30,3 +30,8 @@ KCOV_INSTRUMENT_atomic_ll_sc.o	:= n
 UBSAN_SANITIZE_atomic_ll_sc.o	:= n
 
 lib-$(CONFIG_ARCH_HAS_UACCESS_FLUSHCACHE) += uaccess_flushcache.o
+
+AFLAGS_memcpy.o += -fno-integrated-as
+AFLAGS_memmove.o += -fno-integrated-as
+AFLAGS_memset.o += -fno-integrated-as
+AFLAGS_memchr.o += -fno-integrated-as

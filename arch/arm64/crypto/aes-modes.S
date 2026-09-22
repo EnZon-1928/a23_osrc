@@ -232,7 +232,7 @@ AES_ENTRY(aes_ctr_encrypt)
 	bmi		.Lctr1x
 	cmn		w6, #4			/* 32 bit overflow? */
 	bcs		.Lctr1x
-	ldr		q8, =0x30000000200000001	/* addends 1,2,3[,0] */
+	ldr		q8, .Lctraddends	/* addends 1,2,3[,0] */
 	dup		v7.4s, w6
 	mov		v0.16b, v4.16b
 	add		v7.4s, v7.4s, v8.4s
@@ -298,6 +298,9 @@ AES_ENTRY(aes_ctr_encrypt)
 AES_ENDPROC(aes_ctr_encrypt)
 	.ltorg
 
+	.align		4
+.Lctraddends:
+	.quad		0x0000000100000000, 0x0000000300000002
 
 	/*
 	 * aes_xts_decrypt(u8 out[], u8 const in[], u8 const rk1[], int rounds,
