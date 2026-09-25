@@ -300,7 +300,6 @@ AES_ENTRY(aes_ctr_encrypt)
 AES_ENDPROC(aes_ctr_encrypt)
 	.ltorg
 
-
 	/*
 	 * aes_xts_decrypt(u8 out[], u8 const in[], u8 const rk1[], int rounds,
 	 *		   int blocks, u8 const rk2[], u8 iv[], int first)
