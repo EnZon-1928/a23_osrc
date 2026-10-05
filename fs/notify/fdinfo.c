@@ -124,7 +124,7 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 				/* Use bitwise evaluation for Kernel 4.19 compatibility */
 				seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
 						inode_mark->wd, ino, dev,
-						(mark->mask & IN_ALL_EVENTS));
+						(mark->mask & (IN_ALL_EVENTS | IN_ONESHOT | IN_EXCL_UNLINK)));
 				show_mark_fhandle(m, inode);
 				seq_putc(m, '\n');
 				iput(inode);
@@ -155,7 +155,7 @@ static void inotify_fdinfo(struct seq_file *m, struct fsnotify_mark *mark)
 				/* Use bitwise evaluation for Kernel 4.19 compatibility */
 				seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:0 ",
 						inode_mark->wd, d_backing_inode(path.dentry)->i_ino, d_backing_inode(path.dentry)->i_sb->s_dev,
-						(mark->mask & IN_ALL_EVENTS));
+						(mark->mask & (IN_ALL_EVENTS | IN_ONESHOT | IN_EXCL_UNLINK)));
 				show_mark_fhandle(m, d_backing_inode(path.dentry));
 				seq_putc(m, '\n');
 				path_put(&path);
@@ -177,7 +177,7 @@ orig_flow:
 		 * least one bit (FS_EVENT_ON_CHILD) which is
 		 * used only internally to the kernel.
 		 */
-		mask = mark->mask & IN_ALL_EVENTS;
+		mask = mark->mask & (IN_ALL_EVENTS | IN_ONESHOT | IN_EXCL_UNLINK);
 		seq_printf(m, "inotify wd:%x ino:%lx sdev:%x mask:%x ignored_mask:%x ",
 			   inode_mark->wd, inode->i_ino, inode->i_sb->s_dev,
 			   mask, mark->ignored_mask);
