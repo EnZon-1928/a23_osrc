@@ -60,8 +60,34 @@ jobs:
         chmod +x build_kernel.sh
         bash build_kernel.sh
 
+    - name: Record Build Metadata
+      env:
+        LTO: ${{ github.event.inputs.LTO }}
+      run: |
+        set -euo pipefail
+        {
+          echo "Build time (UTC): $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          echo "Kernel commit: $(git rev-parse HEAD)"
+          echo "Kernel commit title: $(git log -1 --pretty=%s)"
+          echo "BakaSU commit: $(git -C KernelSU rev-parse HEAD)"
+          echo "LTO: ${LTO}"
+          echo
+          echo "Clang:"
+          toolchain/clang/bin/clang --version
+          echo
+          echo "AArch64 GCC:"
+          toolchain/gcc/aarch64/bin/aarch64-linux-android-gcc --version | head -n 1
+          echo "AArch64 GCC commit: $(git -C toolchain/gcc/aarch64 rev-parse HEAD)"
+          echo
+          echo "ARM32 GCC:"
+          toolchain/gcc/arm/bin/arm-linux-androideabi-gcc --version | head -n 1
+          echo "ARM32 GCC commit: $(git -C toolchain/gcc/arm rev-parse HEAD)"
+        } | tee build-metadata.txt
+
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ZharVe1L-Kernel-A235F-${{ github.event.inputs.LTO }}-${{ steps.build-meta.outputs.commit_title }}-run-${{ github.run_number }}
-        path: Image.gz
+        path: |
+          Image.gz
+          build-metadata.txt
