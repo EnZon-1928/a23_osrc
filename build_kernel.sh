@@ -98,6 +98,11 @@ else
     ./scripts/config --file "${OUT_DIR}/.config" --disable LTO_CLANG --disable THINLTO
 fi
 
+KERNEL_RELEASE="$(make "${MAKE_ARGS[@]}" -s kernelrelease)"
+export KBUILD_BUILD_USER="a235f-ver-${KERNEL_RELEASE}"
+export KBUILD_BUILD_HOST="ZharVe1L"
+echo "Build identity: ${KBUILD_BUILD_USER}@${KBUILD_BUILD_HOST}"
+
 # 6. Kernel Compilation
 echo "Initiating primary compilation phase..."
 make "${MAKE_ARGS[@]}" CONFIG_SECTION_MISMATCH_WARN_ONLY=y
