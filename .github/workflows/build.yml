@@ -12,6 +12,9 @@ on:
           - none
           - thin
 
+permissions:
+  contents: write
+
 jobs:
   build-kernel:
     runs-on: ubuntu-latest
@@ -84,10 +87,41 @@ jobs:
           echo "ARM32 GCC commit: $(git -C toolchain/gcc/arm rev-parse HEAD)"
         } | tee build-metadata.txt
 
-    - name: Upload Build Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: ZharVe1L-Kernel-A235F-${{ github.event.inputs.LTO }}-${{ steps.build-meta.outputs.commit_title }}-run-${{ github.run_number }}
-        path: |
-          Image.gz
-          build-metadata.txt
+    - name: Package Flashable AnyKernel
+      id: package
+      env:
+        LTO: ${{ github.event.inputs.LTO }}
+        COMMIT_TITLE: ${{ steps.build-meta.outputs.commit_title }}
+      run: |
+        set -euo pipefail
+        PACKAGE_NAME="ZharVe1L-Kernel-A235F-${LTO}-${COMMIT_TITLE}-run-${GITHUB_RUN_NUMBER}.zip"
+        RELEASE_TITLE="ZharVe1L Kernel A235F ${LTO} ${COMMIT_TITLE} run-${GITHUB_RUN_NUMBER}"
+        RELEASE_TAG="anykernel-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}"
+        TARGET_COMMIT="$(git rev-parse HEAD)"
+        PACKAGE_DIR="$(mktemp -d "${RUNNER_TEMP}/anykernel.XXXXXX")"
+        trap 'rm -rf "${PACKAGE_DIR}"' EXIT
+        cp -a .external/. "${PACKAGE_DIR}/"
+        cp Image build-metadata.txt "${PACKAGE_DIR}/"
+        chmod 755 "${PACKAGE_DIR}/META-INF/com/google/android/update-binary"
+        (
+          cd "${PACKAGE_DIR}"
+          zip -qr "${GITHUB_WORKSPACE}/${PACKAGE_NAME}" .
+        )
+        echo "package_name=${PACKAGE_NAME}" >> "${GITHUB_OUTPUT}"
+        echo "release_title=${RELEASE_TITLE}" >> "${GITHUB_OUTPUT}"
+        echo "release_tag=${RELEASE_TAG}" >> "${GITHUB_OUTPUT}"
+        echo "target_commit=${TARGET_COMMIT}" >> "${GITHUB_OUTPUT}"
+
+    - name: Publish Flashable Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        PACKAGE_NAME: ${{ steps.package.outputs.package_name }}
+        RELEASE_TITLE: ${{ steps.package.outputs.release_title }}
+        RELEASE_TAG: ${{ steps.package.outputs.release_tag }}
+        TARGET_COMMIT: ${{ steps.package.outputs.target_commit }}
+      run: |
+        gh release create "${RELEASE_TAG}" "${PACKAGE_NAME}" \
+          --title "${RELEASE_TITLE}" \
+          --notes "Flashable AnyKernel ZIP. Build commit: ${TARGET_COMMIT}." \
+          --target "${TARGET_COMMIT}" \
+          --prerelease

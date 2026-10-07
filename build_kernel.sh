@@ -103,6 +103,6 @@ echo "Initiating primary compilation phase..."
 make "${MAKE_ARGS[@]}" CONFIG_SECTION_MISMATCH_WARN_ONLY=y
 
 echo "Transferring compiled artifacts..."
-cp "${OUT_DIR}/arch/arm64/boot/Image.gz" "${KERNEL_DIR}/Image.gz"
+cp "${OUT_DIR}/arch/arm64/boot/Image" "${KERNEL_DIR}/Image"
 
 echo "Build sequence executed successfully."
